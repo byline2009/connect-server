@@ -1,5 +1,6 @@
 const oracledb = require("oracledb");
 oracledb.autoCommit = true;
+require("dotenv").config();
 
 var getConnected = function (sql, params, callback) {
   oracledb.getConnection(
