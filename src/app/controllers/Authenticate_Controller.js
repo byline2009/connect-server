@@ -9,7 +9,7 @@ class Authenticate_Controller {
     const user = { name: username };
 
     var client = ldap.createClient({
-      url: "ldap://10.3.12.57:389/ou=c7,dc=mobifone,dc=vn",
+      url: process.env.LDAP_URI,
       timeout: 5000,
       connectTimeout: 10000,
     });
@@ -19,27 +19,6 @@ class Authenticate_Controller {
         console.log(err);
         res.sendStatus(401);
       } else {
-        // var options = {
-        //   filter: "(objectClass=*)",
-        //   scope: "sub",
-        // };
-        // client.search(
-        //   "cn=duong.tranvan@mobifone.vn,ou=c7,dc=mobifone,dc=vn",
-        //   options,
-        //   (err, res) => {
-        //     if (err) {
-        //       console.log(err);
-        //       res.sendStatus(401);
-        //     } else {
-        //       // client.on("searchEntry", function (entry) {
-        //       //   console.log("I found a result in searchEntry");
-        //       //   console.log("entry", entry);
-
-        //       // });
-
-        //     }
-        //   }
-        // );
         const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
           expiresIn: "10d",
         });
@@ -51,18 +30,5 @@ class Authenticate_Controller {
     });
   }
 }
-// function authenticateDN(username, password) {
-//   var client = ldap.createClient({
-//     url: "ldap://10.3.12.57:389/ou=c7,dc=mobifone,dc=vn",
-//     timeout: 5000,
-//     connectTimeout: 10000,
-//   });
-//   client.bind(username, password, (err) => {
-//     if (err) {
-//       console.log(err);
-//     } else {
-//       console.log("successfull");
-//     }
-//   });
-// }
+
 module.exports = new Authenticate_Controller();
