@@ -10,6 +10,7 @@ const bhtt_ptm_Router = require("./BHTT");
 const db01_ptm_Router = require("./DB01-PTM");
 const warning_Expire_contract_Router = require("./Warning_Contract");
 const authenticateRouter = require("./Authenticate");
+const websiteRouter = require("./Website");
 
 function route(app) {
   app.get("/", function (req, res) {
@@ -27,6 +28,7 @@ function route(app) {
     authenticateToken,
     warning_Expire_contract_Router
   );
+  app.use("/website", websiteRouter);
 }
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
