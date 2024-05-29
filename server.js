@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const app = express();
-const PORT = 5000;
+const PORT = 8100;
 app.use(cors());
 app.use(morgan("combined"));
 app.use(

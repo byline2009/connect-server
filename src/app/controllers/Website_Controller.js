@@ -18,19 +18,6 @@ class WebsiteController {
     } else {
       res.send({ result: null });
     }
-
-    // let sql = `declare
-    // f_resul CLOB;
-    // begin
-    // :f_resul := F_call_soap_api_flowone(777555565);
-    // end;`;
-    // DbWebsiteConnection.getConnected(sql, {}, function (result) {
-    //   console.log("check ne", result);
-    //   if (result) {
-    //     // result.map((item, index) => {});
-    //   }
-    //   res.send({ result: result });
-    // });
   }
 }
 module.exports = new WebsiteController();

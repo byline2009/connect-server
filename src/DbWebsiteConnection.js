@@ -119,11 +119,12 @@ async function execute(isdn) {
     let bindvars = {
       result: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 32767 },
     };
+    console.log(connection);
     const result = await connection.execute(
       `BEGIN :result := F_call_soap_api_flowone(${isdn}); END;`,
       bindvars
     );
-    // console.log("Result:", result.outBinds.result);
+    console.log("Result:", result);
     return result.outBinds.result;
   } catch (err) {
     console.log(err);
