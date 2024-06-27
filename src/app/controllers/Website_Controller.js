@@ -2,7 +2,7 @@ const DbWebsiteConnection = require("../../DbWebsiteConnection");
 
 class WebsiteController {
   index(req, res) {
-    let sql = "select * from dual";
+    let sql = "select sysdate from dual";
     DbWebsiteConnection.getConnected(sql, {}, function (result) {
       if (result) {
         result.map((item, index) => {});
@@ -13,8 +13,12 @@ class WebsiteController {
   async getPackage(req, res) {
     const isdn = req.query.isdn;
     if (isdn) {
-      const resPackage = await DbWebsiteConnection.execute(isdn);
-      res.send({ result: resPackage });
+      const resQuery = await DbWebsiteConnection.execute(isdn);
+      console.log("check", resQuery);
+      DbWebsiteConnection.getConnected(resQuery, {}, function (result) {
+        console.log(result);
+        res.send({ result: result });
+      });
     } else {
       res.send({ result: null });
     }
