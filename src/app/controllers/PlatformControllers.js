@@ -68,7 +68,7 @@ class PlatformController {
               };
               arrTemp.push(object);
             });
-            let worksheet = workbook.addWorksheet("Employees"); //creating worksheet
+            let worksheet = workbook.addWorksheet("doanhthu_platform"); //creating worksheet
             worksheet.columns = [
               { header: "FILE_DATE", key: "FILE_DATE", width: 10 },
               { header: "ISSUE_DATE", key: "ISSUE_DATE", width: 30 },
@@ -125,9 +125,9 @@ class PlatformController {
               res.end();
               console.log("File write done........");
             });
-            workbook.xlsx.write(res).then(function () {
-              res.end();
-            });
+            // workbook.xlsx.write(res).then(function () {
+            //   res.end();
+            // });
           }
           // res.send({ data: data, totalCount: total });
         });
