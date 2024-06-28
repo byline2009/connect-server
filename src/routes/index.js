@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const DbConnection = require("../DbConnection");
 const employeeOffRouter = require("./EmployeeOff");
 const dashboardRouter = require("./DashBoard");
+const platformRouter = require("./Platform");
 const thaySim4GRouter = require("./Thaysim4G");
 const ptm_nvbh_tbtt_Router = require("./PTM_NVBH_TBTT");
 const bhtt_ptm_Router = require("./BHTT");
@@ -23,7 +24,7 @@ function route(app) {
   app.use("/bhtt-ptm", authenticateToken, bhtt_ptm_Router);
   app.use("/db01-ptm", authenticateToken, db01_ptm_Router);
   app.use("/dashboard", authenticateToken, dashboardRouter);
-  app.use("/platform", authenticateToken, dashboardRouter);
+  app.use("/platform", authenticateToken, platformRouter);
   app.use(
     "/warning-contract",
     authenticateToken,

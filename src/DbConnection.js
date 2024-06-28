@@ -28,9 +28,9 @@ var getConnected = function (sql, params, callback) {
             callback(null);
             return;
           }
-          console.log(result.metaData);
+          // console.log(result.metaData);
           //console.log(result.metaData); // [ { name: 'DEPARTMENT_ID' }, { name: 'DEPARTMENT_NAME' } ]
-          //console.log(result.rows);     // [ [ 180, 'Construction' ] ]
+          // console.log("check nef", result.rows); // [ [ 180, 'Construction' ] ]
           //module.exports.rows  = result.rows;
           rows = result.rows;
           doRelease(connection);
@@ -71,6 +71,37 @@ async function execute(sql, params) {
   }
 }
 
+async function executeProcedurePlatFomMonthly() {
+  let connection;
+  try {
+    connection = await oracledb.getConnection({
+      user: process.env.USER_AN,
+      password: process.env.PASSWORD_AN,
+      connectString: process.env.CONNECT_STRING_AN,
+    });
+    // Khai báo biến để nhận kết quả trả về từ function
+
+    console.log(connection);
+    const result = await connection.execute(
+      `BEGIN  AN_OWNER.Dthu_PTM_Platform_Monthly(); END;`,
+      {}
+    );
+    console.log("Result:", result);
+    return result;
+  } catch (err) {
+    console.log(err);
+    return null;
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+}
+
 function doRelease(connection) {
   connection.close(function (err) {
     if (err) {
@@ -80,3 +111,4 @@ function doRelease(connection) {
 }
 module.exports.getConnected = getConnected;
 module.exports.execute = execute;
+module.exports.executeProcedurePlatFomMonthly = executeProcedurePlatFomMonthly;

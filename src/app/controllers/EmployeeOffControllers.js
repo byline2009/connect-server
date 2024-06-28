@@ -1,4 +1,4 @@
-const DbConnection = require("../../DbConnection");
+const DbConnection = require("../../DbSaleOwnerConnection");
 const excel = require("exceljs");
 
 class EmployeeOffController {
