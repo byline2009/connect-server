@@ -29,7 +29,7 @@ class PlatformController {
             nmonth: month,
           };
         } else {
-          query = `select FILE_DATE, ISSUE_DATE, LOAITB, ISDN, SUB_ID, SUB_TYPE, CUS_TYPE, ACTIVE_DATE, SHOP_CODE, 
+          query = `select FILE_DATE, ISSUE_DATE, LOAITB, ISDN, SUB_ID, SUB_TYPE, CUS_TYPE, ACTIVE_DATE,EMP_CODE, SHOP_CODE, 
 	      GOI_CUOC_DAU, PLATFORM, CHARGE_PRICE, REG_DATETIME, PROVINCE_DKY_GOI, NUM_OF_CYCLES, NUM_DAYS_PER_CYCLES, VLR_PROVINCE, VLR_DISTRICT, DTHU_MONTH, PROVINCE_PHAT_TRIEN_TB
         from AN_OWNER.DU_LIEU_TB_PLATFORM_PTM 
          where TRUNC(ISSUE_DATE, 'MONTH') = to_date(:nmonth, 'dd-mm-rrrr')`;
@@ -53,6 +53,7 @@ class PlatformController {
                 SUB_TYPE: item.SUB_TYPE,
                 CUS_TYPE: item.CUS_TYPE,
                 ACTIVE_DATE: item.ACTIVE_DATE,
+                EMP_CODE: item.EMP_CODE,
                 SHOP_CODE: item.SHOP_CODE,
                 GOI_CUOC_DAU: item.GOI_CUOC_DAU,
                 PLATFORM: item.PLATFORM,
@@ -83,6 +84,7 @@ class PlatformController {
               { header: "CUS_TYPE", key: "CUS_TYPE", width: 30 },
 
               { header: "ACTIVE_DATE", key: "ACTIVE_DATE", width: 30 },
+              { header: "EMP_CODE", key: "EMP_CODE", width: 30 },
               { header: "SHOP_CODE", key: "SHOP_CODE", width: 30 },
               { header: "GOI_CUOC_DAU", key: "GOI_CUOC_DAU", width: 30 },
 
