@@ -101,6 +101,39 @@ async function execute(isdn) {
     }
   }
 }
+
+async function checkType(isdn) {
+  let connection;
+  try {
+    connection = await oracledb.getConnection({
+      user: process.env.USER_WEBSITE,
+      password: process.env.PASSWORD_WEBSITE,
+      connectString: process.env.CONNECT_STRING_WEBSITE,
+    });
+    // Khai báo biến để nhận kết quả trả về từ function
+    let bindvars = {
+      result: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 32767 },
+    };
+    console.log(connection);
+    const result = await connection.execute(
+      `BEGIN :result := db01_owner.LOAI_SO_KHUYEN_KHICH_CTY7_NEW(${isdn}); END;`,
+      bindvars
+    );
+    console.log("Result:", result);
+    return result.outBinds.result;
+  } catch (err) {
+    console.log(err);
+    return null;
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+}
 function doRelease(connection) {
   connection.close(function (err) {
     if (err) {

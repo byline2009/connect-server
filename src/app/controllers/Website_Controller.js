@@ -23,5 +23,18 @@ class WebsiteController {
       res.send({ result: null });
     }
   }
+  async getType(req, res) {
+    const isdn = req.query.isdn;
+    if (isdn) {
+      const resQuery = await DbWebsiteConnection.checkType(isdn);
+      console.log("check", resQuery);
+      DbWebsiteConnection.getConnected(resQuery, {}, function (result) {
+        console.log(result);
+        res.send({ result: result });
+      });
+    } else {
+      res.send({ result: null });
+    }
+  }
 }
 module.exports = new WebsiteController();
