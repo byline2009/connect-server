@@ -28,10 +28,7 @@ class WebsiteController {
     if (isdn) {
       const resQuery = await DbWebsiteConnection.checkType(isdn);
       console.log("check", resQuery);
-      DbWebsiteConnection.getConnected(resQuery, {}, function (result) {
-        console.log(result);
-        res.send({ result: result });
-      });
+      res.send({ result: resQuery });
     } else {
       res.send({ result: null });
     }

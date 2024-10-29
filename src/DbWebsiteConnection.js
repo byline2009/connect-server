@@ -143,3 +143,4 @@ function doRelease(connection) {
 }
 module.exports.getConnected = getConnected;
 module.exports.execute = execute;
+module.exports.checkType = checkType;
