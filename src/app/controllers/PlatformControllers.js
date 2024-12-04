@@ -20,7 +20,8 @@ class PlatformController {
       if (resultProcedure !== null) {
         if (isCurrentPage === "true") {
           query = `select FILE_DATE, ISSUE_DATE, LOAITB, ISDN, SUB_ID, SUB_TYPE, CUS_TYPE, ACTIVE_DATE, SHOP_CODE, 
-	      GOI_CUOC_DAU, PLATFORM, CHARGE_PRICE, REG_DATETIME, PROVINCE_DKY_GOI, NUM_OF_CYCLES, NUM_DAYS_PER_CYCLES, VLR_PROVINCE, VLR_DISTRICT, DTHU_MONTH, PROVINCE_PHAT_TRIEN_TB
+	      GOI_CUOC_DAU, PLATFORM, CHARGE_PRICE, REG_DATETIME, PROVINCE_DKY_GOI, NUM_OF_CYCLES, NUM_DAYS_PER_CYCLES, 
+        VLR_PROVINCE, VLR_DISTRICT, DTHU_MONTH, PROVINCE_PHAT_TRIEN_TB,SHOP_CODE_ACTION_AUDIT, REG_REASON_ID
         from AN_OWNER.DU_LIEU_TB_PLATFORM_PTM 
          where TRUNC(ISSUE_DATE, 'MONTH') = to_date(:nmonth, 'dd-mm-rrrr') offset :offsetbv rows fetch next :nrowsbv rows only`;
           paramsQuery = {
