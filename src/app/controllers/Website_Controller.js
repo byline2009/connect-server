@@ -1,6 +1,10 @@
+const { Association } = require("sequelize");
 const DbWebsiteConnection = require("../../DbWebsiteConnection");
 const db = require("../../models");
 const SalePoint = db.salepoint;
+const ImageSalePoint = db.images;
+
+const { query, validationResult } = require("express-validator");
 class WebsiteController {
   index(req, res) {
     let sql = "select sysdate from dual";
@@ -47,29 +51,21 @@ class WebsiteController {
   }
 
   async createSalePoint(req, res) {
-    console.log(
-      "check",
-      !req.body.shopID ||
-        !req.body.nameShop ||
-        !req.body.province ||
-        !req.body.district ||
-        !req.body.ward
-    );
-    if (
-      !req.body.shopID ||
-      !req.body.nameShop ||
-      !req.body.province ||
-      !req.body.district ||
-      !req.body.ward
-    ) {
-      return res.status(400).send({ error: "Field is required" });
-    } else {
+    const result = validationResult(req);
+    // console.log("validation", result);
+    let fileAvatarPath = null;
+    if (req.files && req.files["avatar"] && req.files["avatar"][0]) {
+      fileAvatarPath = req.files["avatar"][0].path.replace(/\\/g, "/");
+    }
+
+    if (result.isEmpty()) {
       let info = {
         shopID: req.body.shopID,
         nameShop: req.body.nameShop ? req.body.nameShop : null,
         staffSupport: req.body.staffSupport ? req.body.staffSupport : null,
         personalID: req.body.personalID ? req.body.personalID : null,
-        businessCode: req.body.businessCode ? req.body.businessCode : null,
+        staffCode: req.body.staffCode ? req.body.staffCode : null,
+        shopCode: req.body.shopCode ? req.body.shopCode : null,
         email: req.body.email ? req.body.email : null,
         phone: req.body.phone ? req.body.phone : null,
         province: req.body.province ? req.body.province : null,
@@ -78,11 +74,41 @@ class WebsiteController {
         address: req.body.address ? req.body.address : null,
         latitude: req.body.latitude ? req.body.latitude : null,
         longitude: req.body.longitude ? req.body.longitude : null,
-        avatar: req.file && req.file.path ? req.file.path : null,
+        avatar:
+          req.files && req.files["avatar"] && req.files["avatar"][0]
+            ? fileAvatarPath
+            : null,
       };
-      const salepoint = await SalePoint.create(info);
-      res.status(200).send(salepoint);
-      console.log(salepoint);
+      console.log("req.files", req.files);
+      let product = await SalePoint.findOne({ where: { shopID: info.shopID } });
+      if (product) {
+        return res
+          .status(400)
+          .send({ errors: [{ msg: "Sale point is existed" }] });
+      }
+      try {
+        const arrayImage = [];
+        if (req.files && req.files["images"]) {
+          req.files["images"].map(async (item, index) => {
+            const pathImage = req.files["images"][0].path.replace(/\\/g, "/");
+            const infoImage = {
+              imageName: req.files["images"][0].name,
+              imageUrl: pathImage,
+            };
+            arrayImage.push(infoImage);
+          });
+          const infoFinal = { ...info, images: arrayImage };
+          const salepoint = await SalePoint.create(infoFinal, {
+            include: [{ model: ImageSalePoint, as: "images" }],
+          });
+          res.status(200).send(salepoint);
+          console.log(salepoint);
+        }
+      } catch (error) {
+        throw new Error(error);
+      }
+    } else {
+      res.status(400).send({ errors: result.array() });
     }
   }
   async getAllSalePoint(req, res) {

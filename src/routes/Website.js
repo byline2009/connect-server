@@ -6,6 +6,7 @@ const multer = require("multer");
 const path = require("path");
 const { mkdirSync } = require("fs");
 const { checkFileType } = require("../utils/helper");
+const { body } = require("express-validator");
 // For Multer Storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -28,7 +29,7 @@ const storage = multer.diskStorage({
     checkFileType(file, cb);
   },
   limit: {
-    files: 1,
+    files: 10,
     fileSize: (1024 * 1024) / 20, //500k
   },
 });
@@ -44,13 +45,21 @@ router.post(
 );
 router.post(
   "/uploadImagesSalePoint",
-  upload.array("images", 8),
+  upload.array("images[]", 8),
   websiteController.uploadImageSalePoint
 );
 router.post(
   "/createSalePoint",
-  upload.single("avatar"),
-  //   upload.array("images", 3),
+  upload.fields([
+    { name: "avatar", maxCount: 1 },
+    { name: "images", maxCount: 8 },
+  ]),
+  body("shopID").notEmpty().escape().trim(),
+  body("nameShop").notEmpty().escape().trim(),
+  body("province").notEmpty().escape().trim(),
+  body("district").notEmpty().escape(),
+  body("ward").notEmpty().escape(),
+  body("email").isEmail(),
   websiteController.createSalePoint
 );
 router.use("/", websiteController.index);
