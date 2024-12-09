@@ -45,9 +45,10 @@ router.post(
 );
 router.post(
   "/uploadImagesSalePoint",
-  upload.array("images[]", 8),
+  upload.fields([{ name: "images", maxCount: 8 }]),
   websiteController.uploadImageSalePoint
 );
+router.delete("/salepoint/:shopID", websiteController.deleteSalePoint);
 router.post(
   "/createSalePoint",
   upload.fields([

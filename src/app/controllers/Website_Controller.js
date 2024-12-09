@@ -1,4 +1,5 @@
 const { Association } = require("sequelize");
+var Sequelize = require("sequelize");
 const DbWebsiteConnection = require("../../DbWebsiteConnection");
 const db = require("../../models");
 const SalePoint = db.salepoint;
@@ -81,6 +82,7 @@ class WebsiteController {
       };
       console.log("req.files", req.files);
       let product = await SalePoint.findOne({ where: { shopID: info.shopID } });
+      console.log("product", product);
       if (product) {
         return res
           .status(400)
@@ -90,20 +92,23 @@ class WebsiteController {
         const arrayImage = [];
         if (req.files && req.files["images"]) {
           req.files["images"].map(async (item, index) => {
-            const pathImage = req.files["images"][0].path.replace(/\\/g, "/");
+            const pathImage = req.files["images"][index].path.replace(
+              /\\/g,
+              "/"
+            );
             const infoImage = {
-              imageName: req.files["images"][0].name,
+              imageName: req.files["images"][index].filename,
               imageUrl: pathImage,
             };
             arrayImage.push(infoImage);
           });
-          const infoFinal = { ...info, images: arrayImage };
-          const salepoint = await SalePoint.create(infoFinal, {
-            include: [{ model: ImageSalePoint, as: "images" }],
-          });
-          res.status(200).send(salepoint);
-          console.log(salepoint);
         }
+        const infoFinal = { ...info, images: arrayImage };
+        const salepoint = await SalePoint.create(infoFinal, {
+          include: [{ model: ImageSalePoint, as: "images" }],
+        });
+        res.status(200).send(salepoint);
+        console.log(salepoint);
       } catch (error) {
         throw new Error(error);
       }
@@ -112,8 +117,43 @@ class WebsiteController {
     }
   }
   async getAllSalePoint(req, res) {
-    let salepoints = await SalePoint.findAll({});
+    const { offset, limit } = req.query;
+    if (offset && limit) {
+    }
+    let salepoints = await SalePoint.findAll({
+      offset: offset ? offset : 0,
+      limit: limit ? limit : 10,
+      order: [["nameShop"]],
+      include: [{ model: ImageSalePoint, as: "images" }],
+    });
     res.status(200).send(salepoints);
+  }
+  async deleteSalePoint(req, res) {
+    const { shopID } = req.params;
+    if (shopID) {
+      const salepoint = await SalePoint.findOne({ shopID: shopID });
+      if (salepoint) {
+        await SalePoint.destroy({ where: { shopID: shopID } }).then(
+          function (rowDeleted) {
+            // rowDeleted will return number of rows deleted
+            if (rowDeleted === 1) {
+              console.log("Deleted successfully");
+              return res.status(200).send({ message: "Delete successfully" });
+            } else {
+              return res.status(400).send({ message: "Delete unsuccessfully" });
+            }
+          },
+          function (err) {
+            console.log(err);
+            return res.status(400).send(err);
+          }
+        );
+      } else {
+        return res
+          .status(400)
+          .send({ errors: [{ msg: "Sale point is not existed" }] });
+      }
+    }
   }
 }
 
