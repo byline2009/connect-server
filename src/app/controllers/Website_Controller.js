@@ -2,6 +2,7 @@ const { Association } = require("sequelize");
 var Sequelize = require("sequelize");
 const DbWebsiteConnection = require("../../DbWebsiteConnection");
 const db = require("../../models");
+const fs = require("fs");
 const SalePoint = db.salepoint;
 const ImageSalePoint = db.images;
 
@@ -131,27 +132,57 @@ class WebsiteController {
   async deleteSalePoint(req, res) {
     const { shopID } = req.params;
     if (shopID) {
-      const salepoint = await SalePoint.findOne({ shopID: shopID });
-      if (salepoint) {
-        await SalePoint.destroy({ where: { shopID: shopID } }).then(
-          function (rowDeleted) {
-            // rowDeleted will return number of rows deleted
-            if (rowDeleted === 1) {
-              console.log("Deleted successfully");
-              return res.status(200).send({ message: "Delete successfully" });
-            } else {
-              return res.status(400).send({ message: "Delete unsuccessfully" });
-            }
-          },
-          function (err) {
-            console.log(err);
-            return res.status(400).send(err);
+      try {
+        const salepoint = await SalePoint.findOne({
+          where: { shopID: shopID },
+          include: [{ model: ImageSalePoint, as: "images" }],
+        });
+        console.log(salepoint);
+        if (salepoint) {
+          const { avatar } = salepoint;
+          if (avatar) {
+            console.log("avatar", avatar);
+            fs.unlink(avatar, (err) => {
+              console.error(err);
+              if (err) throw err;
+              console.log("The file was deleted");
+            });
           }
-        );
-      } else {
-        return res
-          .status(400)
-          .send({ errors: [{ msg: "Sale point is not existed" }] });
+          console.log(salepoint);
+          if (salepoint.images && salepoint.images.length > 0) {
+            salepoint.images.map(async (image) => {
+              fs.unlink(image.imageUrl, (err) => {
+                if (err) throw err;
+                console.log("The file was deleted");
+              });
+              await ImageSalePoint.destroy({ where: { id: image.id } });
+            });
+          }
+
+          await SalePoint.destroy({ where: { shopID: shopID } }).then(
+            async function (rowDeleted) {
+              // rowDeleted will return number of rows deleted
+              if (rowDeleted === 1) {
+                console.log("Deleted successfully");
+                return res.status(200).send({ message: "Delete successfully" });
+              } else {
+                return res
+                  .status(400)
+                  .send({ message: "Delete unsuccessfully" });
+              }
+            },
+            function (err) {
+              console.log(err);
+              return res.status(400).send(err);
+            }
+          );
+        } else {
+          return res
+            .status(400)
+            .send({ errors: [{ msg: "Sale point is not existed" }] });
+        }
+      } catch (error) {
+        return res.status(400).send(error);
       }
     }
   }
