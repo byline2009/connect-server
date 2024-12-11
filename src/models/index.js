@@ -19,6 +19,7 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
 sequelize
   .authenticate()
   .then(() => {
+    console.log("db",dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD)
     console.log("connected..");
   })
   .catch((err) => {
