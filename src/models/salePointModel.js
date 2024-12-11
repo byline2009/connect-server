@@ -2,6 +2,10 @@ module.exports = (sequelize, DataTypes) => {
   const SalePoint = sequelize.define(
     "sale_point",
     {
+      createdBy: {
+        type: DataTypes.STRING, // Chứa thông tin người tạo
+        allowNull: false,  // Bắt buộc
+      },
       shopID: {
         type: DataTypes.STRING,
         allowNull: false,

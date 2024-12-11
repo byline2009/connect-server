@@ -55,6 +55,7 @@ router.post(
     { name: "avatar", maxCount: 1 },
     { name: "images", maxCount: 8 },
   ]),
+  body("createdBy").notEmpty().escape().trim(),
   body("shopID").notEmpty().escape().trim(),
   body("nameShop").notEmpty().escape().trim(),
   body("province").notEmpty().escape().trim(),

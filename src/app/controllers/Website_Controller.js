@@ -5,6 +5,7 @@ const db = require("../../models");
 const fs = require("fs");
 const SalePoint = db.salepoint;
 const ImageSalePoint = db.images;
+const { sequelize } = require('../../models'); // Import sequelize từ nơi đã cấu hình
 
 const { query, validationResult } = require("express-validator");
 class WebsiteController {
@@ -54,72 +55,96 @@ class WebsiteController {
 
   async createSalePoint(req, res) {
     const result = validationResult(req);
-    // console.log("validation", result);
+  
+    // Lưu đường dẫn avatar nếu có
     let fileAvatarPath = null;
     if (req.files && req.files["avatar"] && req.files["avatar"][0]) {
       fileAvatarPath = req.files["avatar"][0].path.replace(/\\/g, "/");
     }
-
+  
     if (result.isEmpty()) {
       let info = {
+        createdBy: req.body.createdBy,
         shopID: req.body.shopID,
-        nameShop: req.body.nameShop ? req.body.nameShop : null,
-        staffSupport: req.body.staffSupport ? req.body.staffSupport : null,
-        personalID: req.body.personalID ? req.body.personalID : null,
-        staffCode: req.body.staffCode ? req.body.staffCode : null,
-        shopCode: req.body.shopCode ? req.body.shopCode : null,
-        email: req.body.email ? req.body.email : null,
-        phone: req.body.phone ? req.body.phone : null,
-        province: req.body.province ? req.body.province : null,
-        provinceCode: req.body.provinceCode ? req.body.provinceCode : null,
-        district: req.body.district ? req.body.district : null,
-        districtCode: req.body.districtCode ? req.body.districtCode : null,
-        ward: req.body.ward ? req.body.ward : null,
-        wardCode: req.body.wardCode ? req.body.wardCode : null,
-        address: req.body.address ? req.body.address : null,
-        latitude: req.body.latitude ? req.body.latitude : null,
-        longitude: req.body.longitude ? req.body.longitude : null,
-        avatar:
-          req.files && req.files["avatar"] && req.files["avatar"][0]
-            ? fileAvatarPath
-            : null,
+        nameShop: req.body.nameShop || null,
+        staffSupport: req.body.staffSupport || null,
+        personalID: req.body.personalID || null,
+        staffCode: req.body.staffCode || null,
+        shopCode: req.body.shopCode || null,
+        email: req.body.email || null,
+        phone: req.body.phone || null,
+        province: req.body.province || null,
+        provinceCode: req.body.provinceCode || null,
+        district: req.body.district || null,
+        districtCode: req.body.districtCode || null,
+        ward: req.body.ward || null,
+        wardCode: req.body.wardCode || null,
+        address: req.body.address || null,
+        latitude: req.body.latitude || null,
+        longitude: req.body.longitude || null,
+        avatar: fileAvatarPath || null,
       };
-      console.log("req.files", req.files);
-      let product = await SalePoint.findOne({ where: { shopID: info.shopID } });
-      console.log("product", product);
-      if (product) {
-        return res
-          .status(400)
-          .send({ errors: [{ msg: "Sale point is existed" }] });
-      }
+  
       try {
+        // Kiểm tra sự tồn tại của shopID trong bảng sale_owner.V_EMPLOYEE_TCQLKH
+        const existingEmployee = await sequelize.query(
+          `SELECT * FROM sale_owner.V_EMPLOYEE_TCQLKH WHERE emp_code = :shopID`,
+          {
+            replacements: { shopID: info.shopID },
+            type: sequelize.QueryTypes.SELECT,
+          }
+        );
+  
+        if (existingEmployee.length === 0) {
+          throw new Error(`Mã Điểm Bán ${info.shopID} không tồn tại trong hệ thống.`);
+        }
+  
+        // Kiểm tra nếu shopID đã tồn tại trong bảng SalePoint
+        const existingSalePoint = await SalePoint.findOne({ where: { shopID: info.shopID } });
+        if (existingSalePoint) {
+          throw new Error("Mã Điểm Bán Đã Được Khai Báo Trước Đó");
+        }
+  
+        // Xử lý hình ảnh
         const arrayImage = [];
         if (req.files && req.files["images"]) {
-          req.files["images"].map(async (item, index) => {
-            const pathImage = req.files["images"][index].path.replace(
-              /\\/g,
-              "/"
-            );
-            const infoImage = {
-              imageName: req.files["images"][index].filename,
+          req.files["images"].forEach((file) => {
+            const pathImage = file.path.replace(/\\/g, "/");
+            arrayImage.push({
+              imageName: file.filename,
               imageUrl: pathImage,
-            };
-            arrayImage.push(infoImage);
+            });
           });
         }
+  
         const infoFinal = { ...info, images: arrayImage };
+  
+        // Tạo SalePoint mới
         const salepoint = await SalePoint.create(infoFinal, {
           include: [{ model: ImageSalePoint, as: "images" }],
         });
+  
         res.status(200).send(salepoint);
-        console.log(salepoint);
       } catch (error) {
-        throw new Error(error);
+        // Nếu có lỗi, xóa file đã upload
+        if (req.files) {
+          if (req.files["avatar"] && req.files["avatar"][0]) {
+            fs.unlinkSync(req.files["avatar"][0].path);
+          }
+          if (req.files["images"]) {
+            req.files["images"].forEach((file) => {
+              fs.unlinkSync(file.path);
+            });
+          }
+        }
+  
+        res.status(400).send({ errors: [{ msg: error.message }] });
       }
     } else {
       res.status(400).send({ errors: result.array() });
     }
   }
+  
   async getAllSalePoint(req, res) {
     const { offset, limit } = req.query;
     if (offset && limit) {
