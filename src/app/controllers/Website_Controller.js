@@ -86,6 +86,8 @@ class WebsiteController {
       };
   
       try {
+        console.log("Thông tin điểm bán:", info);
+  
         // Kiểm tra sự tồn tại của shopID trong bảng sale_owner.V_EMPLOYEE_TCQLKH
         const existingEmployee = await sequelize.query(
           `SELECT * FROM sale_owner.V_EMPLOYEE_TCQLKH WHERE emp_code = :shopID`,
@@ -124,26 +126,43 @@ class WebsiteController {
           include: [{ model: ImageSalePoint, as: "images" }],
         });
   
+        console.log("SalePoint created successfully:", salepoint);
         res.status(200).send(salepoint);
       } catch (error) {
+        console.error("Lỗi trong quá trình tạo SalePoint:", error.message);
+  
         // Nếu có lỗi, xóa file đã upload
         if (req.files) {
           if (req.files["avatar"] && req.files["avatar"][0]) {
-            fs.unlinkSync(req.files["avatar"][0].path);
+            try {
+              fs.unlinkSync(req.files["avatar"][0].path);
+              console.log("Xóa avatar file thành công");
+            } catch (err) {
+              console.error("Lỗi khi xóa avatar file:", err);
+            }
           }
           if (req.files["images"]) {
             req.files["images"].forEach((file) => {
-              fs.unlinkSync(file.path);
+              try {
+                fs.unlinkSync(file.path);
+                console.log("Xóa file image thành công");
+              } catch (err) {
+                console.error("Lỗi khi xóa file image:", err);
+              }
             });
           }
         }
   
+        // Trả về lỗi cho client
         res.status(400).send({ errors: [{ msg: error.message }] });
       }
     } else {
+      // Nếu validation không thành công, trả về lỗi
+      console.error("Dữ liệu gửi lên không hợp lệ:", result.array());
       res.status(400).send({ errors: result.array() });
     }
   }
+  
   
   async getAllSalePoint(req, res) {
     const { offset, limit } = req.query;
