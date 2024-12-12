@@ -54,8 +54,9 @@ class WebsiteController {
   }
 
   async createSalePoint(req, res) {
-    const result = validationResult(req);
+    const result = validationResult(req);+
   
+    console.log("test",req.files, req.files["avatar"] )
     // Lưu đường dẫn avatar nếu có
     let fileAvatarPath = null;
     if (req.files && req.files["avatar"] && req.files["avatar"][0]) {
@@ -118,9 +119,9 @@ class WebsiteController {
             });
           });
         }
-  
         const infoFinal = { ...info, images: arrayImage };
-  
+        console.log("info final",infoFinal);
+
         // Tạo SalePoint mới
         const salepoint = await SalePoint.create(infoFinal, {
           include: [{ model: ImageSalePoint, as: "images" }],
