@@ -56,6 +56,7 @@ class WebsiteController {
   async createSalePoint(req, res) {
     const result = validationResult(req);
   
+    console.log("test",req.files, req.files["avatar"] )
     // Lưu đường dẫn avatar nếu có
     let fileAvatarPath = null;
     if (req.files && req.files["avatar"] && req.files["avatar"][0]) {
