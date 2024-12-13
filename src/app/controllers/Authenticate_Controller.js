@@ -3,7 +3,9 @@ const jwt = require("jsonwebtoken");
 const ldap = require("ldapjs");
 
 class Authenticate_Controller {
-  index(req, res) {
+  async index(req, res) {
+    const check = await req.json();
+    console.log("check",check)
     const username = req.body.username;
     const password = req.body.password;
     const user = { name: username };
