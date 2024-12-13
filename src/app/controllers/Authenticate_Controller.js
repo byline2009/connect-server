@@ -4,8 +4,7 @@ const ldap = require("ldapjs");
 
 class Authenticate_Controller {
   async index(req, res) {
-    const check = await req.json();
-    console.log("check",check)
+    console.log("check",req)
     const username = req.body.username;
     const password = req.body.password;
     const user = { name: username };
