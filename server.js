@@ -23,7 +23,7 @@ app.use(express.json());
 const route = require("./src/routes");
 route(app);
 app.use("/public", express.static(path.join(__dirname, "public")));
-app.UseAuthentication();
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
 https.createServer({
   key: privateKey,
   cert: certificate
