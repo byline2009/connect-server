@@ -1,7 +1,13 @@
+
+var certificate    = fs.readFileSync('/usr/local/ssl/certificate/tracuu7/cert_tracuu7_161024.crt');
+var privateKey  = fs.readFileSync('/usr/local/ssl/certificate/tracuu7/private_tracuu7.key')
+
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
+const https = require('https')
+
 const app = express();
 const PORT = 8100;
 app.use(cors());
@@ -16,6 +22,10 @@ app.use(express.json());
 const route = require("./src/routes");
 route(app);
 app.use("/public", express.static(path.join(__dirname, "public")));
-app.listen(PORT, () => {
-  console.log(`listen to post ${PORT}`);
-});
+https.createServer({
+  key: privateKey,
+  cert: certificate
+}, app).listen(PORT);
+// app.listen(PORT, () => {
+//   console.log(`listen to post ${PORT}`);
+// });
