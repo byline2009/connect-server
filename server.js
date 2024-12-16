@@ -6,11 +6,11 @@ const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
 const https = require('https')
-var certificate    = fs.readFileSync('/usr/local/ssl/certificate/tracuu7/cert_tracuu7_161024.crt');
-var privateKey  = fs.readFileSync('/usr/local/ssl/certificate/tracuu7/private_tracuu7.key')
+var certificate = fs.readFileSync('/usr/local/ssl/certificate/tracuu7/cert_tracuu7_161024.crt');
+var privateKey = fs.readFileSync('/usr/local/ssl/certificate/tracuu7/private_tracuu7.key')
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 1;
 const app = express();
-const PORT = 8100;
+const PORT = 8101;
 app.use(cors());
 app.use(morgan("combined"));
 app.use(
